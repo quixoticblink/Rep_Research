@@ -1,0 +1,98 @@
+---
+Title: Reproducable Research - Assign. 2
+author: "Abhishek Kaul"
+date: "Sunday, March 22, 2015"
+output:
+  html_document:
+    keep_md: yes
+---
+
+#Synopsis
+
+Based on the data analysis
+- across the United States, tornado are most harmful with respect to population health. 
+- across the United States floods have the greatest economic consequences
+
+
+#Data Processing 
+
+This section provides the data processing activities done to the data set. 
+
+```{r, cache=TRUE}
+library(ggplot2)
+
+# read the dat file for storm data
+data <- read.csv("repdata-data-StormData.csv")
+
+# get familiar with the data 
+names(data)
+head(data,n=2)
+summary(data)
+table(complete.cases(data))
+
+# initial plots to understand the data
+ggplot(yearagg,aes(damage,event)) + geom_point() + geom_line()
+
+# get colum names to lowercase
+names(data) <- tolower(names(data))
+```
+
+## Now lets find the population harm for events
+```{r}
+# harmful for population is fatalaties and injuries ... aggregate & order them
+fatal <- aggregate(fatalities ~ evtype, data = data, FUN = sum)
+fatal <- fatal[order(fatal$fatalities, decreasing = T), ]
+ggplot(fatal[1:7, ], aes(evtype, fatalities)) + geom_bar(stat = "identity") + ggtitle("Top Seven Types of Events Causing Deaths Across the U.S")
+
+injury <- aggregate(injuries ~ evtype, data = data, FUN = sum)
+injury <- injury[order(injury$injuries, decreasing = T), ]
+ggplot(fatal[1:7, ], aes(evtype, fatalities)) + geom_bar(stat = "identity") + ggtitle("Top Seven Types of Events Causing Injuries Across the U.S")
+
+```
+
+This shows that top event for population harm is Tornado
+
+## Now lets move to the economic damage 
+```{r}
+# check units
+table(data$propdmgexp)
+table(data$cropdmgexp)
+
+# normalise 
+
+pd <- data$propdmg
+pde <- data$propdmgexp
+cd <- data$cropdmg
+cde <- data$cropdmgexp
+
+pd[pde %in% "B"] <- pd[pde %in% "B"] * 1000
+pd[pde %in% c("M", "m")] <- pd[pde %in% c("M", "m")] * 1
+pd[pde %in% c("K")] <- pd[pde %in% c("K")] * 0.001
+pd[pde %in% c("H", "h")] <- pd[pde %in% c("H", "h")] * 1e-04
+pd[!(pde %in% c("B", "M", "m", "K", "H", "h"))] <- pd[!(pde %in% c("B", "M", 
+    "m", "K", "H", "h"))] * 1e-06
+
+cd[cde %in% "B"] <- cd[cde %in% "B"] * 1000
+cd[cde %in% c("M", "m")] <- cd[cde %in% c("M", "m")] * 1
+cd[cde %in% c("K", "k")] <- cd[cde %in% c("K", "k")] * 0.001
+cd[!(cde %in% c("B", "M", "m", "K", "k"))] <- cd[!(cde %in% c("B", "M", "m", 
+    "K", "k"))] * 1e-06
+
+totaldamage <- cd + pd
+edt <- aggregate(totaldamage ~ data$evtype, FUN = sum)
+oedt <- edt[order(edt$totaldamage, decreasing = T), ]
+names(oedt)[1] <- "evtype"
+
+ggplot(oedt[1:7, ], aes(evtype, totaldamage)) + geom_bar(stat = "identity") + ggtitle("Top Seven Types of Events Causing Economic Damages Across the U.S")
+
+```
+
+
+#Results 
+
+
+Based on the data analysis
+- across the United States, tornado are most harmful with respect to population health (both injury & fatal. 
+- across the United States floods have the greatest economic consequences for property & agriculture
+
+

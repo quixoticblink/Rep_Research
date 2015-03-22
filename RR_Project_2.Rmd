@@ -1,0 +1,45 @@
+---
+Title: "Reproducable Research - Assign. 2"
+author: "Abhishek Kaul"
+date: "Sunday, March 22, 2015"
+output:
+  html_document:
+    keep_md: yes
+---
+
+#Synopsis
+
+Based on the data analysis
+- across the United States, event types .....are most harmful with respect to population health. 
+- across the United States, ....... events have the greatest economic consequences
+
+
+#Data Processing 
+
+This section provides the data processing activities done to the data set. 
+
+```{r}
+library(ggplot2)
+
+# read the dat file for storm data
+data <- read.csv("repdata-data-StormData.csv")
+
+# get familiar with the data 
+names(data)
+head(data$EVTYPE)
+summarise(data, n=2)
+table(complete.cases(data))
+
+# initial plots to understand the data
+
+```
+
+
+#Results 
+
+
+Based on the data analysis
+- across the United States, event types .....are most harmful with respect to population health. 
+- across the United States, ....... events have the greatest economic consequences
+
+
